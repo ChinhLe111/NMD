@@ -1,0 +1,587 @@
+<div class="relative group">
+  <div class="absolute z-10 w-full h-0 top-[calc(50%-1.125rem)]">
+    <div class="flex justify-between container mx-auto">
+      <i
+        (click)="handlePrev(swiper)"
+        class="las la-angle-left text-2xl left-0 transition-all duration-500 ease-in-out relative opacity-0 group-hover:opacity-100 bg-gray-300 hover:bg-blue-600 hover:text-white p-2 rounded-full cursor-pointer"
+      ></i>
+      <i
+        (click)="handleNext(swiper)"
+        class="las la-angle-right text-2xl right-0 transition-all duration-500 ease-in-out relative opacity-0 group-hover:opacity-100 bg-gray-300 hover:bg-blue-600 hover:text-white p-2 rounded-full cursor-pointer"
+      ></i>
+    </div>
+  </div>
+  <!--banner slider-->
+  <div
+    class="backdrop-invert-0 max-w-screen-sm md:max-w-screen-md lg:max-w-[900px] absolute z-10 top-8 mx-auto left-0 right-0"
+  >
+    <ul class="flex h-8 w-full space-x-2">
+      <li
+        class="flex items-center hover:bg-gray-900/70 hover:text-white text-gray-700 font-medium rounded-t text-center px-8 cursor-pointer"
+        [ngClass]="{ 'bg-gray-900/70 text-white': typeMenuFilter === 'For Sale' }"
+        (click)="handleMenuFilter('For Sale')"
+      >
+        <span>{{ 'Nhà đất bán' | translate }}</span>
+      </li>
+      <li
+        class="flex items-center hover:bg-gray-900/70 hover:text-white text-gray-700 font-medium rounded-t text-center px-8 cursor-pointer"
+        [ngClass]="{ 'bg-gray-900/70 text-white': typeMenuFilter === 'For Rent' }"
+        (click)="handleMenuFilter('For Rent')"
+      >
+        <span>{{ 'Nhà đất cho thuê' | translate }}</span>
+      </li>
+    </ul>
+    <div class="p-4 bg-gray-900/70 rounded-b rounded-tr">
+      <div class="flex h-10">
+        <button
+          class="flex items-center justify-between px-3 w-48 bg-white border-r border-gray-200 rounded-l-lg"
+          nz-dropdown
+          nzTrigger="click"
+          [nzDropdownMenu]="menuTypeOfHousing"
+        >
+          <img
+            *ngIf="!choosePropertyType; else iconTypeOfHousing"
+            class="h-4 w-4"
+            src="/assets/icons/home.svg"
+            alt=""
+          />
+          <ng-template #iconTypeOfHousing let-icon ngFor [ngForOf]="arrIconTypeOfHousing">
+            <img *ngIf="icon.code === choosePropertyType?.code" class="h-4 w-4" [src]="icon.icon" alt="" />
+          </ng-template>
+          <span class="grow text-left pl-3">{{ choosePropertyType?.title || 'Loại nhà đất' | translate }}</span>
+          <span nz-icon nzType="down" class="text-xs"></span>
+          <nz-dropdown-menu #menuTypeOfHousing="nzDropdownMenu">
+            <ul nz-menu class="rounded-lg w-60">
+              <li
+                *ngFor="let propertyType of (codeTypeFacade.listPropertyType$ | async)?.content"
+                nz-menu-item
+                class="flex gap-3 p-3 border-b border-gray-100"
+                [ngClass]="{ 'text-red-800 font-medium': choosePropertyType === propertyType }"
+                (click)="handleTypeOfHousing(propertyType)"
+              >
+                <ng-template let-icon ngFor [ngForOf]="arrIconTypeOfHousing">
+                  <img *ngIf="icon.code === propertyType.code" class="h-4 w-4" [src]="icon.icon" alt="" />
+                </ng-template>
+                <span class="grow">{{ propertyType.title }}</span>
+              </li>
+            </ul>
+          </nz-dropdown-menu>
+        </button>
+        <div class="relative grow">
+          <input
+            id="search"
+            class="w-full !h-full p-3 text-sm text-gray-900 rounded-tr-lg rounded-br-lg focus:outline-none"
+            [(ngModel)]="fullTextSearch"
+          />
+          <button
+            class="h-2/3 text-white absolute top-1/2 -translate-y-1/2 px-3 right-2 bg-red-500 font-medium rounded text-sm hover:bg-red-400 flex items-center space-x-2"
+            (click)="handleSearch()"
+          >
+            <img class="h-1/2" src="/assets/icons/home/icon/search-white.svg" alt="" />
+            <span>Tìm kiếm</span>
+          </button>
+        </div>
+      </div>
+      <!--filter-->
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center items-end gap-4 mt-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+          <button
+            nz-tooltip
+            [nzTooltipTitle]="titleArea() | translate"
+            [nzTooltipTrigger]="'hover'"
+            [nzTooltipPlacement]="'bottom'"
+            class="rounded w-full h-8 text-white border border-white flex justify-between items-center px-3"
+            nz-dropdown
+            nzTrigger="click"
+            [nzDropdownMenu]="menuArea"
+            (nzVisibleChange)="filterVisibleChange($event)"
+          >
+            <span class="truncate mr-3">{{ titleArea() || 'Toàn quốc' | translate }}</span>
+            <span nz-icon nzType="down" class="!text-xs text-gray-400"></span>
+            <nz-dropdown-menu #menuArea="nzDropdownMenu">
+              <g-area [isReset]="isResetFilter" (onChange)="changeArea($event)"></g-area>
+            </nz-dropdown-menu>
+          </button>
+          <button
+            class="rounded w-full h-8 text-white border border-white flex justify-between items-center px-3"
+            nz-dropdown
+            nzTrigger="click"
+            [nzDropdownMenu]="menuPrice"
+            (nzVisibleChange)="filterVisibleChange($event)"
+          >
+            <span>{{ valueChangePrice?.label || 'Mức giá' | translate }}</span>
+            <span nz-icon nzType="down" class="!text-xs text-gray-400"></span>
+            <nz-dropdown-menu #menuPrice="nzDropdownMenu">
+              <g-price [isReset]="isResetFilter" (onChange)="changePrice($event)"></g-price>
+            </nz-dropdown-menu>
+          </button>
+          <button
+            class="rounded w-full h-8 text-white border border-white flex justify-between items-center px-3"
+            nz-dropdown
+            nzTrigger="click"
+            [nzDropdownMenu]="menuAcreage"
+            (nzVisibleChange)="filterVisibleChange($event)"
+          >
+            <span>{{ valueChangeAcreage?.label || 'Diện tích' | translate }}</span>
+            <span nz-icon nzType="down" class="!text-xs text-gray-400"></span>
+            <nz-dropdown-menu #menuAcreage="nzDropdownMenu">
+              <g-acreage [isReset]="isResetFilter" (onChange)="changeAcreage($event)"></g-acreage>
+            </nz-dropdown-menu>
+          </button>
+          <button
+            class="rounded w-full h-8 text-white border border-white flex justify-between items-center px-3"
+            nz-dropdown
+            nzTrigger="click"
+            nzPlacement="bottomRight"
+            [nzDropdownMenu]="menuMore"
+            (nzVisibleChange)="filterVisibleChange($event)"
+          >
+            <span>{{ valueChangeSource?.title || 'Lọc thêm' | translate }}</span>
+            <span nz-icon nzType="down" class="!text-xs text-gray-400"></span>
+            <nz-dropdown-menu #menuMore="nzDropdownMenu">
+              <g-select
+                [isReset]="isResetFilter"
+                [listSelect]="(codeTypeFacade.listPropertySource$ | async)?.content"
+                (onChange)="changeSource($event)"
+              ></g-select>
+            </nz-dropdown-menu>
+          </button>
+        </div>
+        <img
+          class="h-7 w-7 bg-white rounded-full cursor-pointer hover:opacity-80 active:bg-blue-200"
+          src="../../../assets/icons/component/sync.svg"
+          alt=""
+          (click)="handleReset()"
+        />
+      </div>
+      <!--      end filter-->
+    </div>
+  </div>
+  <!--end banner slider-->
+  <swiper-container fmSwiper #swiper (init)="handleInit($event)" [config]="config" init="false" class="w-full">
+    <swiper-slide>
+      <div>
+        <img
+          class="lazy zoom w-full h-96 lg:h-[450px] object-cover top-0 left-0 -z-10"
+          src="https://list.vn/wp-content/uploads/2021/01/1_image7-1.png"
+        />
+        <div class="absolute z-10 top-[calc(60%)] left-[calc(30%)]">
+          <div class="flex flex-row gap-5 items-center">
+            <h1 class="left text-2xl lg:text-4xl text-black font-bold leading-none w-40 lg:w-80 text-center">
+              Báo cáo thị trường bất động sản
+            </h1>
+            <div class="right">
+              <button class="bg-white text-gray-500 font-semibold text-2xl p-4 border border-gray-300 rounded-lg">
+                Đăng ký
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </swiper-slide>
+    <swiper-slide>
+      <div>
+        <img
+          class="lazy w-full h-96 lg:h-[450px] object-cover top-0 left-0 -z-10"
+          src="https://s3.cloud.cmctelecom.vn/tinhte2/2020/01/4875839_united_arab_emirates_skyscrapers_dubai_megapolis-wallpaper-1920x1080.jpg"
+        />
+        <div class="absolute z-10 top-[calc(60%)] left-[calc(30%)]">
+          <div class="flex flex-row gap-5 items-center">
+            <h1 class="left text-2xl lg:text-4xl text-yellow-50 font-bold leading-none w-40 lg:w-80 text-center">
+              Báo cáo thị trường bất động sản
+            </h1>
+            <div class="right">
+              <button class="bg-white text-gray-500 font-semibold text-2xl p-4 border border-gray-300 rounded-lg">
+                Đăng ký
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </swiper-slide>
+    <swiper-slide>
+      <div>
+        <img
+          class="lazy zoom w-full h-96 lg:h-[450px] object-cover top-0 left-0 -z-10"
+          src="https://static1.cafeland.vn/cafelandData/upload/tintuc/thitruong/2016/07/tuan-01/dubai-2-1467643985.jpg"
+        />
+        <div class="absolute z-10 top-[calc(60%)] left-[calc(30%)]">
+          <div class="flex flex-row gap-5 items-center">
+            <h1 class="left text-2xl lg:text-4xl text-yellow-50 font-bold leading-none w-40 lg:w-80 text-center">
+              Báo cáo thị trường bất động sản
+            </h1>
+            <div class="right">
+              <button class="bg-white text-gray-500 font-semibold text-2xl p-4 border border-gray-300 rounded-lg">
+                Đăng ký
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </swiper-slide>
+  </swiper-container>
+</div>
+<section class="max-w-screen-xl flex justify-between gap-x-10 mx-auto my-10 px-3 sm:px-10">
+  <div class="w-full lg:w-4/5">
+    <div class="sm:flex justify-between items-center border-b border-b-stone-200 lg:mb-7">
+      <div class="mx-auto sm:mx-0">
+        <button
+          (click)="changeType(item); changeIndex(i)"
+          *ngFor="let item of news; let i = index"
+          class="text-base sm:text-lg lg:text-2xl text-stone-400 hover:text-stone-900 font-semibold hover:border-b hover:border-b-red-600 duration-300 pb-1.5 sm:pb-3 px-1.5 sm:px-2.5"
+          [ngClass]="{ 'text-stone-900 border-b border-b-red-600': codeType === item.type }"
+        >
+          {{ item.type }}
+        </button>
+      </div>
+      <a
+        href=""
+        class="hidden sm:flex justify-end items-center text-right gap-x-1 text-sm text-red-600 hover:text-red-400 mt-2 sm:mt-0 pb-1.5 sm:pb-3"
+        >Xem thêm <i class="las la-arrow-right"></i
+      ></a>
+    </div>
+
+    <div *ngFor="let item of news" class="lg:flex justify-between gap-x-10">
+      <ng-container *ngFor="let atomic of item.items">
+        <div *ngIf="codeType === item.type && title === atomic.title" class="hidden lg:block">
+          <div class="h-64 w-[458px] rounded-md">
+            <img class="w-full rounded-md" src="{{ atomic.img }}" alt="" />
+          </div>
+          <a href=""
+            ><h2 class="max-w-[450px] text-2xl hover:text-stone-400 duration-300 font-semibold mt-4">
+              {{ atomic.title }}
+            </h2>
+          </a>
+        </div>
+        <div *ngIf="codeType === item.type" class="lg:hidden flex gap-x-4 border-b border-stone-200 py-5">
+          <div class="w-36 sm:w-1/3 min-w-[144px] sm:min-w-[292px]">
+            <img class="w-full object-cover rounded-md" src="{{ atomic.img }}" alt="" />
+          </div>
+          <a
+            ><h3 class="sm:text-base lg:text-2xl hover:text-stone-400 duration-300 font-semibold mt-1 sm:mt-4 sm:px-2">
+              {{ atomic.title }}
+            </h3>
+          </a>
+        </div>
+      </ng-container>
+      <div *ngIf="codeType === item.type" class="hidden lg:block w-1/2">
+        <a (mouseenter)="changeTitle(atomic)" *ngFor="let atomic of item.items; let i = index" href=""
+          ><p class="text-base text-black hover:text-stone-400 pb-4" [ngClass]="{ 'border-t py-4': i !== 0 }">
+            {{ atomic.title }}
+          </p></a
+        >
+      </div>
+    </div>
+    <a
+      href=""
+      class="sm:hidden flex justify-center items-center text-right gap-x-1 text-sm text-red-600 hover:text-red-400 mt-4 sm:mt-0 pb-1.5 sm:pb-3"
+      >Xem thêm <i class="las la-arrow-right"></i
+    ></a>
+  </div>
+  <a class="hidden lg:block" href="">
+    <img src="/assets/icons/home/2024369887033207116.png" alt="" />
+  </a>
+</section>
+
+<section class="bg-gray-50">
+  <div class="max-w-screen-xl mx-auto mt-10 pt-10 pb-7 px-3 sm:px-10 rounded-md">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-lg sm:text-2xl font-semibold text-black">Bất động sản dành cho bạn</h3>
+      <div class="hidden xl:flex items-center">
+        <a href="" class="text-black hover:text-slate-400">Tin nhà đất bán mới nhất</a>
+        <div class="bg-black px-[0.75px] h-3 mx-2.5"></div>
+        <a href="" class="text-black hover:text-slate-400">Tin nhà đất cho thuê mới nhất</a>
+      </div>
+    </div>
+    <nz-spin [nzSpinning]="propertyFacade.isLoading$ | async">
+      <div
+        *ngIf="propertyFacade.get$ | async as listProperty"
+        class="max-h-[730px] grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 overflow-hidden relative"
+        [ngClass]="{ 'max-h-[730px]': !buttonExtend, 'max-h-[1480px]': buttonExtend }"
+      >
+        <div
+          *ngFor="let item of listProperty.slice(0, 8)"
+          class="bg-white rounded-md border border-gray-200 hover:shadow-md duration-400 w-full cursor-pointer"
+        >
+          <div class="relative"
+               (click)="clickProperty(item)">
+            <div class="flex flex-row items-center gap-1 absolute bottom-2 right-2">
+              <img src="/assets/icons/home/whiteimage.svg" alt="" class="w-[18px]" />
+              <span
+                *ngIf="item.virtualImageListUrl && item.virtualImageListUrl.length > 0"
+                class="text-white font-semibold"
+              >{{ item.virtualImageListUrl.length }}</span
+              >
+            </div>
+            <img [src]="item.thumbnailUrl" class="h-[150px] w-full max-w-full object-cover rounded-t-sm" />
+          </div>
+
+          <div class="flex flex-col p-5 gap-2">
+            <h1
+              (click)="clickProperty(item)"
+              class="text-sm font-sans font-semibold text-black line-clamp-2 relative h-10"
+            >
+              {{ item.title }}
+            </h1>
+            <div class="flex flex-row items-center gap-2"
+                 (click)="clickProperty(item)">
+              <span class="text-red-600 text-base truncate font-medium">{{
+                formatCurrencyText(item.totalPrice!)
+              }}</span>
+              <span class="text-gray-500 mb-2">.</span>
+              <span class="text-red-600 text-base truncate font-medium">{{ item.totalArea }} m&#178;</span>
+            </div>
+            <div class="truncate flex flex-row items-center gap-1 text-gray-600"
+                 (click)="clickProperty(item)">
+              <img class="h-4" src="/assets/icons/location.svg" alt="" />
+              <span>{{ item.communeName }}, {{ item.districtName }}, {{ item.provinceName }}</span>
+            </div>
+            <div class="flex flex-row justify-between items-center pt-2">
+              <span class="text-sm text-gray-400 cursor-pointer">{{ calculateDayProperty(item.createdOnDate!) }}</span>
+              <button
+                class="bg-white border border-gray-400 rounded p-2"
+                nzTooltipTitle="Bấm để lưu tin"
+                nzTooltipPlacement="bottom"
+                nz-button
+                nz-tooltip
+              >
+                <img class="h-4" src="/assets/icons/heart.svg" alt="" />
+              </button>
+            </div>
+          </div>
+        </div>
+        <ng-container *ngIf="buttonExtend">
+          <div
+            *ngFor="let item of listProperty.slice(8, 16)"
+            class="bg-white rounded-md border border-gray-200 hover:shadow-md duration-400 w-full cursor-pointer"
+          >
+            <div class="relative">
+              <div class="flex flex-row items-center gap-1 absolute bottom-2 right-2">
+                <img src="/assets/icons/home/whiteimage.svg" alt="" class="w-[18px]" />
+                <span
+                  *ngIf="item.virtualImageListUrl && item.virtualImageListUrl.length > 0"
+                  class="text-white font-semibold"
+                  >{{ item.virtualImageListUrl.length }}</span
+                >
+              </div>
+              <img [src]="item.thumbnailUrl" class="h-[150px] w-full max-w-full object-cover rounded-t-sm" />
+            </div>
+
+            <div class="flex flex-col p-5 gap-2">
+              <h1
+                (click)="clickProperty(item)"
+                class="text-sm font-sans font-semibold text-black line-clamp-2 relative h-10"
+              >
+                {{ item.title }}
+              </h1>
+              <div class="flex flex-row items-center gap-2">
+                <span class="text-red-600 text-base truncate font-medium">{{
+                  formatCurrencyText(item.totalPrice!)
+                }}</span>
+                <span class="text-gray-500 mb-2">.</span>
+                <span class="text-red-600 text-base truncate font-medium">{{ item.totalArea }} m&#178;</span>
+              </div>
+
+              <div class="truncate flex flex-row items-center gap-1 text-gray-600">
+                <img class="h-4" src="/assets/icons/location.svg" alt="" />
+                <span>{{ item.communeName }}, {{ item.districtName }}, {{ item.provinceName }}</span>
+              </div>
+              <div class="flex flex-row justify-between items-center pt-2">
+                <span class="text-sm text-gray-400 cursor-pointer">{{
+                  calculateDayProperty(item.createdOnDate!)
+                }}</span>
+                <button
+                  class="bg-white border border-gray-400 rounded p-2"
+                  nzTooltipTitle="Bấm để lưu tin"
+                  nzTooltipPlacement="bottom"
+                  nz-button
+                  nz-tooltip
+                >
+                  <img class="h-4" src="/assets/icons/heart.svg" alt="" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </nz-spin>
+    <div class="flex justify-center p-5">
+      <button
+        *ngIf="!buttonExtend"
+        type="button"
+        (click)="getProperties()"
+        class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg px-8 py-4"
+      >
+        Mở rộng
+        <i class="las la-angle-down ml-1 font-bold"></i>
+      </button>
+      <a
+        *ngIf="buttonExtend"
+        href=""
+        class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 hover:text-black font-medium rounded-lg px-8 py-4"
+      >
+        Xem tiếp
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-screen-xl mx-auto mt-10 mb-4 px-3 sm:px-10">
+  <div class="flex justify-between items-center">
+    <h2 class="text-lg sm:text-2xl text-black font-semibold">Dự án bất động sản nổi bật</h2>
+    <a href="" class="flex justify-end items-center text-right gap-x-1 text-sm text-red-600 hover:text-red-400"
+      >Xem thêm <i class="las la-arrow-right text-base"></i
+    ></a>
+  </div>
+  <div class="relative">
+    <swiper-container fmSwiper #outstanding (init)="handleInit($event)" [config]="config1" class="w-full mt-6">
+      <swiper-slide
+        *ngFor="let item of listOutStanding"
+        class="border border-stone-100 rounded-md shadow-sm hover:shadow-md mb-5"
+      >
+        <a href="" class="text-black hover:text-black">
+          <div class="min-h-[146px] h-1/2 relative">
+            <img src="{{ item.img }}" alt="" class="rounded-t-md w-full" />
+            <div class="absolute bottom-2.5 right-2.5 text-white flex gap-x-1">
+              <img
+                *ngIf="item.title === 'Paris Hoàng Kim'"
+                src="assets/icons/home/play-button.svg"
+                alt=""
+                class="mr-1 w-5"
+              />
+              <img src="/assets/icons/home/whiteimage.svg" alt="" class="w-5" />
+              <p>7</p>
+            </div>
+          </div>
+          <div class="min-h-[136px] h-1/2 p-4">
+            <p
+              class="text-sm text-green-600 font-semibold bg-green-100 rounded-md px-2 py-1"
+              [ngClass]="{
+                truncate: item.date,
+                'inline-block': item.date === '',
+                'text-red-500 bg-red-100': item.status === 'Sắp mở bán'
+              }"
+            >
+              {{ item.status
+              }}<span
+                *ngIf="item.date"
+                class="text-green-600 mx-2"
+                [ngClass]="{ 'text-red-500 bg-red-100': item.status === 'Sắp mở bán' }"
+                >-</span
+              ><span class="font-normal">{{ item.date }}</span>
+            </p>
+            <h4 class="text-base font-semibold truncate mt-2 mb-0.5 pr-8">{{ item.title }}</h4>
+            <p class="font-semibold mb-0.5" [innerHTML]="item.totalArea"></p>
+            <p>{{ item.location }}</p>
+          </div>
+        </a>
+      </swiper-slide>
+    </swiper-container>
+    <div class="hidden xl:block absolute -inset-14 top-[40%]">
+      <div class="flex justify-between">
+        <i
+          (click)="handlePrev(outstanding)"
+          class="las la-angle-left text-2xl left-0 transition-all duration-500 ease-in-out bg-opacity-0 hover:bg-opacity-80 bg-gray-100 hover:bg-gray-300 p-2 rounded-lg cursor-pointer"
+        ></i>
+        <i
+          (click)="handleNext(outstanding)"
+          class="las la-angle-right text-2xl right-0 transition-all duration-500 ease-in-out bg-opacity-0 hover:bg-opacity-80 bg-gray-100 hover:bg-gray-300 p-2 rounded-lg cursor-pointer"
+        ></i>
+      </div>
+    </div>
+  </div>
+  <a href="">
+    <img class="mx-auto mt-5 mb-9" src="/assets/icons/home/redbanner.png" alt="" />
+  </a>
+</section>
+<!--  -->
+<section class="max-w-screen-xl mx-auto mt-10 mb-4 px-3 sm:px-10">
+  <h2 class="text-lg sm:text-2xl text-black font-semibold">Tin tức bất động sản</h2>
+  <div class="relative">
+    <swiper-container fmSwiper #propertynews (init)="handleInit($event)" [config]="propertyNews" class="w-full mt-6">
+      <swiper-slide *ngFor="let item of listPropertyNews" class="mb-5">
+        <a href="" class="text-black hover:text-black">
+          <div class="min-h-[202px] h-2/3">
+            <img src="{{ item.img }}" alt="{{ item.title }}" class="rounded-md w-full" />
+          </div>
+          <div class="h-1/3 flex items-center text-stone-600 gap-x-3 mt-4 px-1">
+            <p class="text-5xl font-semibold">{{ item.stt }}</p>
+            <a href="{{ item.link }}">
+              <h4 class="text-base hover:text-stone-500 font-semibold line-clamp-2 duration-300 mt-2 mb-0.5 pr-2">
+                {{ item.title }}
+              </h4>
+            </a>
+          </div>
+        </a>
+      </swiper-slide>
+    </swiper-container>
+
+    <div class="hidden xl:block absolute -inset-11 top-[25%]">
+      <div class="flex justify-between">
+        <i
+          (click)="handlePrev(propertynews)"
+          class="las la-angle-left text-2xl left-0 transition-all duration-500 ease-in-out bg-opacity-0 hover:bg-opacity-80 bg-gray-100 hover:bg-gray-300 p-2 rounded-lg cursor-pointer"
+        ></i>
+        <i
+          (click)="handleNext(propertynews)"
+          class="las la-angle-right text-2xl right-0 transition-all duration-500 ease-in-out bg-opacity-0 hover:bg-opacity-80 bg-gray-100 hover:bg-gray-300 p-2 rounded-lg cursor-pointer"
+        ></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-screen-xl mx-auto mt-4 px-3 sm:px-10">
+  <h2 class="text-lg sm:text-2xl text-black font-semibold">Hỗ trợ tiện ích</h2>
+  <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-x-7 gap-y-5 mt-5 mb-8">
+    <a
+      *ngFor="let item of listSupport"
+      href="{{ item.link }}"
+      class="flex items-center gap-x-4 w-full h-20 text-base text-black hover:text-black font-semibold border border-stone-100 rounded-md shadow-sm hover:shadow-md duration-300 px-9"
+    >
+      <img class="h-12" src="{{ item.img }}" alt="" />
+      <p>{{ item.title }}</p>
+    </a>
+  </div>
+  <h2 class="text-lg sm:text-2xl text-black font-semibold">Doanh nghiệp tiêu biểu</h2>
+  <div class="relative group w-full">
+    <swiper-container
+      fmSwiper
+      #enterprise
+      (init)="handleInit($event)"
+      [config]="enterprises"
+      data-swiper-autoplay="2000"
+      class="w-full mt-5"
+    >
+      <swiper-slide *ngFor="let item of listLogo">
+        <a href="">
+          <div
+            class="max-w-[163px] flex justify-center items-center rounded-lg shadow-sm hover:shadow-md border border-stone-100 mx-auto mb-12 px-4 py-2"
+          >
+            <img
+              nz-tooltip
+              nzTooltipPlacement="top"
+              nzTooltipTitle="{{ item.tooltip }}"
+              class="h-24 w-full object-contain grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
+              src="{{ item.img }}"
+            />
+          </div>
+        </a>
+      </swiper-slide>
+    </swiper-container>
+
+    <div class="hidden xl:block absolute -inset-11 top-[25%]">
+      <div class="flex justify-between">
+        <i
+          (click)="handlePrev(enterprise)"
+          class="las la-angle-left text-2xl left-0 transition-all duration-500 ease-in-out bg-opacity-0 hover:bg-opacity-80 bg-gray-100 hover:bg-gray-300 p-2 rounded-lg cursor-pointer"
+        ></i>
+        <i
+          (click)="handleNext(enterprise)"
+          class="las la-angle-right text-2xl right-0 transition-all duration-500 ease-in-out bg-opacity-0 hover:bg-opacity-80 bg-gray-100 hover:bg-gray-300 p-2 rounded-lg cursor-pointer"
+        ></i>
+      </div>
+    </div>
+  </div>
+  <img class="mx-auto" src="/assets/icons/home/logobds.jpg" alt="" />
+</section>

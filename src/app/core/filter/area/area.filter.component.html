@@ -1,0 +1,170 @@
+<main class="bg-white w-96 h-auto shadow rounded-lg space-y-2">
+  <div *ngIf="comeback; else chooseDetail">
+    <section class="p-4">
+      <h1 class="font-medium mb-3">{{ 'Khu vực' | translate }}</h1>
+      <div class="space-y-3">
+        <button
+          class="h-14 w-full pl-4 pr-2 border border-gray-200 rounded-lg flex justify-between items-center active:bg-blue-200"
+          (click)="handleSelected('province')"
+        >
+          <div class="text-left">
+            <p [ngClass]="{ 'text-xs': chooseProvince }">{{ 'Tỉnh/Thành' | translate }}</p>
+            <p class="font-medium text-black text-base">{{ chooseProvince?.tenTinh }}</p>
+          </div>
+          <img
+            *ngIf="!chooseProvince"
+            class="h-2/3 aspect-square p-1"
+            src="../../../../assets/icons/component/right.svg"
+            alt=""
+          />
+          <img
+            *ngIf="chooseProvince"
+            class="h-2/3 aspect-square p-[13px]"
+            src="../../../../assets/icons/component/x.svg"
+            alt=""
+            (click)="handleIconX('province'); $event.stopPropagation()"
+          />
+        </button>
+        <button
+          nz-tooltip
+          [nzTooltipTitle]="handleTooltip() | translate"
+          [nzTooltipTrigger]="!provinceSelected ? 'click' : null"
+          class="h-14 w-full pl-4 pr-2 border border-gray-200 rounded-lg flex justify-between items-center active:bg-blue-200"
+          [ngClass]="{ 'cursor-not-allowed': !provinceSelected && !chooseProvince }"
+          (click)="handleSelected('district')"
+        >
+          <div class="text-left">
+            <p [ngClass]="{ 'text-xs': chooseDistrict }">{{ 'Quận/Huyện' | translate }}</p>
+            <p class="font-medium text-black text-base">{{ chooseDistrict?.districtName }}</p>
+          </div>
+          <img
+            *ngIf="!chooseDistrict"
+            class="h-2/3 aspect-square p-1"
+            src="../../../../assets/icons/component/right.svg"
+            alt=""
+          />
+          <img
+            *ngIf="chooseDistrict"
+            class="h-2/3 aspect-square p-[13px]"
+            src="../../../../assets/icons/component/x.svg"
+            alt=""
+            (click)="handleIconX('district'); $event.stopPropagation()"
+          />
+        </button>
+        <button
+          nz-tooltip
+          [nzTooltipTitle]="handleTooltip() | translate"
+          [nzTooltipTrigger]="!districtSelected ? 'click' : null"
+          class="h-14 w-full pl-4 pr-2 border border-gray-200 rounded-lg flex justify-between items-center active:bg-blue-200"
+          [ngClass]="{ 'cursor-not-allowed': !districtSelected && !chooseDistrict }"
+          (click)="handleSelected('commune')"
+        >
+          <div class="text-left">
+            <p [ngClass]="{ 'text-xs': chooseCommune }">{{ 'Phường/Xã' | translate }}</p>
+            <p class="font-medium text-black text-base">{{ chooseCommune?.communeName }}</p>
+          </div>
+          <img
+            *ngIf="!chooseCommune"
+            class="h-2/3 aspect-square p-1"
+            src="../../../../assets/icons/component/right.svg"
+            alt=""
+          />
+          <img
+            *ngIf="chooseCommune"
+            class="h-2/3 aspect-square p-[13px]"
+            src="../../../../assets/icons/component/x.svg"
+            alt=""
+            (click)="handleIconX('commune'); $event.stopPropagation()"
+          />
+        </button>
+      </div>
+    </section>
+    <section class="p-2 flex justify-between items-center border-t border-gray-200">
+      <button
+        class="bg-white px-3 h-8 rounded-md hover:bg-gray-200 inline-flex items-center gap-1 justify-center font-medium"
+        (click)="handleReset()"
+      >
+        <img class="h-2/3 aspect-square" src="../../../../assets/icons/component/sync.svg" alt="" />
+        <span>{{ 'Đặt lại' | translate }}</span>
+      </button>
+      <button
+        nz-menu-item
+        class="bg-red-600 text-white px-4 h-8 rounded-md hover:!bg-red-400 inline-flex items-center gap-1 justify-center font-medium"
+        (click)="handleApply()"
+      >
+        {{ 'Áp dụng' | translate }}
+      </button>
+    </section>
+  </div>
+  <ng-template #chooseDetail>
+    <div class="py-2">
+      <section>
+        <h1 class="relative text-base text-center font-medium px-4 py-2">
+          <img
+            class="h-3/4 aspect-square cursor-pointer absolute top-1/2 -translate-y-1/2 left-1 rotate-180"
+            src="../../../../assets/icons/component/right.svg"
+            alt=""
+            (click)="handleBack()"
+          />
+          <span>{{ handleTitle() | translate }}</span>
+        </h1>
+        <div class="relative mx-4 my-2">
+          <input
+            class="w-full h-10 rounded-md text-gray-900 bg-gray-100 border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+            [formControl]="fullTextSearch"
+            placeholder="{{ (provinceSelected ? 'Tìm Quận/Huyện' : 'Tìm Tỉnh/Thành phố') | translate }}"
+          />
+          <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-3 z-[1]"></i>
+        </div>
+      </section>
+      <section class="max-h-72 overflow-y-auto scroll-smooth custom-scroll mr-1">
+        <nz-spin [nzSpinning]="addressFacade.isLoading$ | async">
+          <ul>
+            <ng-container *ngIf="provinceSelected && (addressFacade.provinceList$ | async) as provinceList">
+              <ng-template let-province ngFor [ngForOf]="provinceList">
+                <li
+                  class="h-9 hover:bg-gray-100 flex justify-between items-center cursor-pointer active:bg-blue-200 text-black"
+                  [ngClass]="{
+                    '!text-red-800 font-medium': chooseProvince && chooseProvince === province
+                  }"
+                  (click)="handleChoose(province, 'province')"
+                >
+                  <span class="my-auto pl-5">{{ province.tenTinh }}</span>
+                  <img class="h-3/4 aspect-square" src="../../../../assets/icons/component/right.svg" alt="" />
+                </li>
+              </ng-template>
+            </ng-container>
+            <ng-container *ngIf="districtSelected && (addressFacade.districtList$ | async) as districtList">
+              <ng-template let-district ngFor [ngForOf]="districtList">
+                <li
+                  class="h-9 hover:bg-gray-100 flex justify-between items-center cursor-pointer active:bg-blue-200 text-black"
+                  [ngClass]="{
+                    '!text-red-800 font-medium': chooseDistrict && chooseDistrict === district
+                  }"
+                  (click)="handleChoose(district, 'district')"
+                >
+                  <span class="my-auto pl-5">{{ district.districtName }}</span>
+                  <img class="h-3/4 aspect-square" src="../../../../assets/icons/component/right.svg" alt="" />
+                </li>
+              </ng-template>
+            </ng-container>
+            <ng-container *ngIf="communeSelected && (addressFacade.communeList$ | async) as communeList">
+              <ng-template let-commune ngFor [ngForOf]="communeList">
+                <li
+                  class="h-9 hover:bg-gray-100 flex justify-between items-center cursor-pointer active:bg-blue-200 text-black"
+                  [ngClass]="{
+                    '!text-red-800 font-medium': chooseCommune && chooseCommune === commune
+                  }"
+                  (click)="handleChoose(commune, 'commune')"
+                >
+                  <span class="my-auto pl-5">{{ commune.communeName }}</span>
+                  <img class="h-3/4 aspect-square" src="../../../../assets/icons/component/right.svg" alt="" />
+                </li>
+              </ng-template>
+            </ng-container>
+          </ul>
+        </nz-spin>
+      </section>
+    </div>
+  </ng-template>
+</main>

@@ -1,0 +1,16 @@
+<div class="relative min-h-[100px]">
+  <div
+    class="w-full h-full flex-col absolute top-0 left-0 right-0 bottom-0 z-10 mx-0 flex justify-center items-center transition-all ease-in-out duration-300"
+    [ngClass]="{ 'invisible opacity-0': !loading, 'visible opacity-100': loading }"
+  >
+    <h5 class="mb-2 text-blue-500">{{ text }}</h5>
+    <div class="loader w-24 h-5">
+      <div class="bar bar1 w-24 h-5 absolute flex items-center"></div>
+      <div class="bar bar2 w-24 h-5 absolute flex items-center"></div>
+      <div class="bar bar3 w-24 h-5 absolute flex items-center"></div>
+    </div>
+  </div>
+  <div [ngClass]="{ 'opacity-50': loading }">
+    <ng-content></ng-content>
+  </div>
+</div>

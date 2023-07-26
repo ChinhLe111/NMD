@@ -1,0 +1,39 @@
+<main class="bg-white w-96 h-auto shadow rounded-lg space-y-2">
+  <section class="px-4 pt-4">
+    <div class="mb-6">
+      <div class="flex items-center w-full space-x-2">
+        <h1 class="font-medium mb-2 whitespace-nowrap">
+          {{ 'Nguồn hàng' | translate }}
+        </h1>
+        <div class="w-full h-[1px] bg-gray-100"></div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <ng-template let-choose ngFor [ngForOf]="listSelect">
+          <button
+            class="rounded-3xl py-2 px-4 bg-gray-100"
+            [ngClass]="{ 'bg-pink-100 text-red-900': chooseSelect === choose }"
+            (click)="handleChoose(choose)"
+          >
+            {{ choose.title | translate }}
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+  <section class="p-2 flex justify-between items-center border-t border-gray-200">
+    <button
+      class="bg-white px-3 h-8 rounded-md hover:bg-gray-200 inline-flex items-center gap-1 justify-center font-medium"
+      (click)="handleReset()"
+    >
+      <img class="h-2/3 aspect-square" src="../../../../assets/icons/component/sync.svg" alt="" />
+      <span>{{ 'Đặt lại' | translate }}</span>
+    </button>
+    <button
+      nz-menu-item
+      class="bg-red-600 text-white px-4 h-8 rounded-md hover:!bg-red-400 inline-flex items-center gap-1 justify-center font-medium"
+      (click)="handleApply()"
+    >
+      {{ 'Áp dụng' | translate }}
+    </button>
+  </section>
+</main>

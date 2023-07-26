@@ -1,0 +1,23 @@
+<section class="py-5 bg-gray-100 rounded-tl-xl rounded-tr-xl -intro-x">
+    <div class="w-[700px] bg-white mx-auto p-6 rounded-md shadow-xl">
+        <h2 class="mb-5 font-semibold text-xl">
+            Chỉnh sửa nguồn tin
+        </h2>
+        <g-form #newsForm 
+        [columns]="columnsProperty" 
+        [loading]="newsFacade.isLoading$ | async"
+        [values]="!id ? null : (newsFacade.data$ | async)">
+        </g-form>
+        <div class="flex justify-end gap-5">
+            <button (click)="handelSubmit()"
+                class="bg-blue-600 text-white border hover:bg-blue-300 rounded-md w-24 !h-8 !px-0 font-medium text-base">
+                Lưu lại
+            </button>
+            <button (click)="handleBack()"
+                class="!bg-gray-200 !text-black hover:!text-blue-300 border !hover:text-blue-300 rounded-md w-24 !h-8 !px-0 font-medium text-base">Đóng
+                lại
+            </button>
+        </div>
+
+    </div>
+</section>

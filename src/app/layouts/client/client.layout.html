@@ -1,0 +1,632 @@
+<header class="mb-20">
+  <section id="header" class="fixed top-0 inset-x-0 bg-white shadow-md z-50">
+    <div class="flex justify-between items-center h-20 px-8 text-black relative xl:static">
+      <div class="flex items-center gap-x-8">
+        <a href="" class="absolute xl:static left-[50%] -translate-x-[50%] xl:translate-x-0">
+          <img class="h-16" src="assets/icons/imgpsh_fullsize_anim.svg" alt="NMD" />
+        </a>
+        <ul nz-menu nzMode="horizontal" class="text-sm font-semibold hidden xl:flex gap-x-7">
+          <ng-template let-navbar ngFor [ngForOf]="listNavbar">
+            <li
+              *ngIf="navbar.roleListCode.includes(roleCode || '')"
+              class="group cursor-pointer text-black"
+              [routerLink]="[navbar.link]"
+            >
+              <div nz-submenu [nzTitle]="navbar.title">
+                <ul *ngIf="navbar.listOption.length > 0" class="w-fit text-sm bg-white rounded-lg shadow py-3">
+                  <ng-template let-option ngFor [ngForOf]="navbar.listOption">
+                    <li
+                      nz-menu-item
+                      [routerLink]="[option.link]"
+                      class="whitespace-nowrap px-3 min-w-[200px] hover:bg-slate-200 duration-700 py-1.5 text-black cursor-pointer"
+                    >
+                      {{ option.title }}
+                    </li>
+                  </ng-template>
+                </ul>
+              </div>
+              <div class="z-10 h-0.5 w-0 group-hover:w-full bg-red-600 duration-300 -translate-y-3"></div>
+            </li>
+          </ng-template>
+        </ul>
+      </div>
+      <div class="flex items-center justify-end text-sm font-semibold">
+        <button
+          nz-tooltip
+          nzTooltipTitle="Danh sách tin đã lưu"
+          nzTooltipPlacement="bottom"
+          nz-dropdown
+          nzTrigger="click"
+          nzPlacement="bottomCenter"
+          [nzDropdownMenu]="save"
+          class="p-4 hover:bg-slate-50 rounded-lg"
+        >
+          <img class="h-5 hover:bg-slate-50 rounded-lg" src="/assets/icons/heart.svg" alt="" />
+          <nz-dropdown-menu #save="nzDropdownMenu">
+            <div class="bg-white w-96 h-72 border rounded-md -mt-1">
+              <p class="text-base text-center font-semibold my-2">Tin đăng đã lưu</p>
+              <div class="border-t">
+                <img
+                  class="absolute right-[50%] top-[50%] translate-x-[50%] -translate-y-[50%]"
+                  src="/assets/icons/footer/empty-state_wap_v1.svg"
+                  alt=""
+                />
+              </div>
+            </div>
+          </nz-dropdown-menu>
+        </button>
+
+        <button nzType="primary" (click)="isCollapsed = !isCollapsed">
+          <img class="h-5 block xl:hidden" src="/assets/icons/menu.svg" alt="" />
+        </button>
+
+        <div *ngIf="!(globalFacade.user$ | async)" class="hidden xl:block">
+          <button (click)="showLoginForm()" class="pr-4 hover:bg-slate-50 rounded-lg duration-300 p-4">
+            Đăng nhập
+          </button>
+          <span class="bg-gray-300 px-[0.5px]"></span>
+          <button (click)="showRegisterForm()" class="hover:bg-slate-50 rounded-lg duration-300 p-4">Đăng ký</button>
+        </div>
+
+        <div *ngIf="globalFacade.user$ | async" class="hidden xl:block">
+          <span class="pr-4 hover:bg-slate-50 rounded-lg duration-300 p-4">
+            Xin chào {{ (globalFacade.user$ | async)?.userModel?.userName }}
+          </span>
+          <span class="bg-gray-300 px-[0.5px]"></span>
+          <a
+            (click)="globalFacade.logout()"
+            class="hover:text-black hover:bg-slate-50 duration-300 border border-stone-300 rounded-lg ml-2 py-3 px-4"
+          >Đăng xuất</a
+          >
+        </div>
+        <a
+          *ngIf="(globalFacade.user$ | async) && ((globalFacade.user$ | async)?.userModel?.roleListCode?.[0] == 'ADMIN' || (globalFacade.user$ | async)?.userModel?.roleListCode?.[0] == 'SOU')"
+          (click)="router.navigate(['/create_estate_news'])"
+          class="hover:text-red-400 text-red-400 hover:bg-red-100 duration-300 border border-red-400 rounded-lg ml-2 py-3 px-4"
+        >Đăng tin</a
+        >
+        <a
+          (click)="router.navigate(['/sellernet'])"
+          *ngIf="(globalFacade.user$ | async) && (globalFacade.user$ | async)?.userModel?.roleListCode?.[0] == 'SOU_CO'"
+          class="hover:text-red-400 text-red-400 hover:bg-red-100 duration-300 border border-red-400 rounded-lg ml-2 py-3 px-4"
+        >Đăng tin</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <nz-modal [(nzVisible)]="isVisible" nzCloseIcon="false" [nzCentered]="true" [nzWidth]="800" [nzFooter]="null">
+    <ng-container *nzModalContent>
+      <div *ngIf="isShowLogin" class="fixed z-40 bg-white rounded-lg flex">
+        <div class="bg-pink-70 w-[336px] rounded-lg pt-8">
+          <img src="assets/icons/imgpsh_fullsize_anim.svg" alt="NMD" class="ml-8 h-[38px]" style="z-index: 999;" />
+          <div class="pl-6">
+            <img
+              src="https://batdongsan.com.vn/sellernet/static/media/cover.800e56db.png"
+              alt="NMD"
+              class="w-full h-[344px] mt-[25px] mb-3"
+              style="z-index: 999;"
+            />
+            <div>
+              <h4 type="primary" class="text-lg font-medium text-black">Tìm nhà đất</h4>
+              <h4 type="primary" class="text-lg font-medium text-black">NMD dẫn lối</h4>
+            </div>
+          </div>
+        </div>
+        <div class="p-8 justify-between relative">
+          <button class="p-3 absolute cursor-pointer right-8" (click)="isVisible = false">
+            <img class="w-4" src="assets/icons/close.svg" style="z-index: 999;" />
+          </button>
+          <div class="w-[400px] h-[467px]">
+            <h5 type="primary" class="text-base font-medium text-black mt-12">Xin chào bạn</h5>
+            <h3 class="mt-1 mb-8 text-2xl font-medium" type="primary">Đăng nhập để tiếp tục</h3>
+
+            <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+              <nz-form-item>
+                <nz-form-control nzErrorTip="Tên đăng nhập không được để trống">
+                  <img src="assets/icons/user.svg" alt="user" class="w-6 h-6 left-3 top-3 absolute" style="z-index: 999;" />
+                  <nz-input-group>
+                    <input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      type="text"
+                      nz-input
+                      formControlName="username"
+                      placeholder="SĐT chính hoặc email"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control nzErrorTip="Mật khẩu không được để trống">
+                  <img src="assets/icons/lock.svg" alt="password" class="w-6 h-6 left-3 top-3 absolute" style="z-index: 999;" />
+                  <img
+                    (click)="passwordVisible = !passwordVisible"
+                    *ngIf="!passwordVisible"
+                    src="assets/icons/hidden.svg"
+                    alt="password"
+                    class="w-6 h-6 right-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <img
+                    (click)="passwordVisible = !passwordVisible"
+                    *ngIf="passwordVisible"
+                    src="assets/icons/open-eye.svg"
+                    alt="password"
+                    class="w-6 h-6 right-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <nz-input-group>
+                    <input
+                      nz-input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      [type]="passwordVisible ? 'text' : 'password'"
+                      formControlName="password"
+                      placeholder="Mật khẩu"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+              <button nz-button class="w-full mt-2 cursor-pointer bg-red-500 rounded-lg py-4">
+                <span class="text-white font-medium bg-red-500 text-sm">Đăng nhập</span>
+              </button>
+              <div class="mt-4 flex justify-between items-center">
+                <div class="cursor-pointer flex flex-row items-center w-fit">
+                  <label nz-checkbox type="checkbox" class="text-sm text-black font-normal">Nhớ tài khoản</label>
+                </div>
+                <a href="/sellernet/internal-forget-password">
+                  <div class="text-red-400 font-normal">Quên mật khẩu?</div>
+                </a>
+              </div>
+            </form>
+          </div>
+          <div class="text-center w-full mt-11">
+            <div type="primary" class="text-sm font-normal bottom-5">
+              Chưa là thành viên?
+              <a (click)="showRegisterForm()" style="display: inline-block">
+                <div class="text-red-500" type="primary">Đăng ký</div>
+              </a>
+              tại đây
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!isShowLogin" class="fixed z-40 bg-white rounded-lg flex">
+        <div class="bg-pink-70 w-[336px] rounded-lg pt-8">
+          <img src="assets/icons/imgpsh_fullsize_anim.svg" alt="NMD" class="ml-8 h-[38px]" style="z-index: 999;" />
+          <div class="pl-6">
+            <img
+              src="https://batdongsan.com.vn/sellernet/static/media/cover.800e56db.png"
+              alt="NMD"
+              class="w-full h-[344px] mt-[25px] mb-3"
+              style="z-index: 999;"
+            />
+            <div>
+              <h4 class="text-lg font-medium text-black">Tìm nhà đất</h4>
+              <h4 class="text-lg font-medium text-black">NMD dẫn lối</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 justify-between relative">
+          <button class="p-3 absolute cursor-pointer right-8" (click)="isVisible = false">
+            <img class="w-4" src="assets/icons/close.svg" style="z-index: 999;" />
+          </button>
+          <div class="w-[400px] h-[555px]">
+            <h5 class="text-base font-medium text-black mt-1">Xin chào bạn</h5>
+            <h3 class="mt-1 mb-3 text-2xl font-medium">Đăng ký tài khoản mới</h3>
+
+            <form nz-form [formGroup]="registerForm" (ngSubmit)="submitRegisterForm()">
+              <nz-form-item>
+                <nz-form-control nzErrorTip="Số điện thoại không được để trống">
+                  <img src="assets/icons/footer/phone-call.svg" alt="user" class="w-6 h-6 left-3 top-3 absolute" style="z-index: 999;" />
+                  <nz-input-group>
+                    <input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      type="text"
+                      nz-input
+                      formControlName="phone"
+                      placeholder="Nhập số điện thoại"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-control nzErrorTip="Mật khẩu không được để trống">
+                  <img src="assets/icons/lock.svg" alt="password" class="w-6 h-6 left-3 top-3 absolute" style="z-index: 999;" />
+                  <img
+                    (click)="passwordVisible = !passwordVisible"
+                    *ngIf="!passwordVisible"
+                    src="assets/icons/hidden.svg"
+                    alt="password"
+                    class="w-6 h-6 right-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <img
+                    (click)="passwordVisible = !passwordVisible"
+                    *ngIf="passwordVisible"
+                    src="assets/icons/open-eye.svg"
+                    alt="password"
+                    class="w-6 h-6 right-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <nz-input-group>
+                    <input
+                      nz-input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      [type]="passwordVisible ? 'text' : 'password'"
+                      formControlName="password"
+                      (ngModelChange)="updateConfirmValidator()"
+                      placeholder="Mật khẩu"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-control nzErrorTip="Xác nhận mật khẩu chưa khớp">
+                  <img
+                    (click)="confirmPasswordVisible = !confirmPasswordVisible"
+                    *ngIf="!confirmPasswordVisible"
+                    src="assets/icons/hidden.svg"
+                    alt="confirm-password"
+                    class="w-6 h-6 right-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <img
+                    (click)="confirmPasswordVisible = !confirmPasswordVisible"
+                    *ngIf="confirmPasswordVisible"
+                    src="assets/icons/open-eye.svg"
+                    alt="confirm-password"
+                    class="w-6 h-6 right-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <img
+                    src="assets/icons/secured-lock.svg"
+                    alt="confirm-password"
+                    class="w-6 h-6 left-3 top-3 absolute"
+                    style="z-index: 999;"
+                  />
+                  <nz-input-group>
+                    <input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      type="password"
+                      nz-input
+                      [type]="confirmPasswordVisible ? 'text' : 'password'"
+                      formControlName="checkPassword"
+                      id="checkPassword"
+                      placeholder="Xác nhận mật khẩu"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+
+              <nz-form-item>
+                <nz-form-control nzErrorTip="Họ và tên không được để trống">
+                  <img src="assets/icons/user.svg" alt="user" class="w-6 h-6 left-3 top-3 absolute" style="z-index: 999;"/>
+                  <nz-input-group>
+                    <input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      type="text"
+                      nz-input
+                      formControlName="name"
+                      placeholder="Nhập họ và tên"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item class="flex gap-3">
+                <nz-form-control nzErrorTip="Chọn loại tài khoản">
+                  <nz-select formControlName="roleCode" nzPlaceHolder="Chọn loại tài khoản">
+                    <nz-option nzValue="SALE" nzLabel="Tài khoản bán"></nz-option>
+                    <nz-option nzValue="AFF" nzLabel="Tài khoản môi giới liên kết"></nz-option>
+                    <nz-option nzValue="SOU" nzLabel="Tài khoản nguồn"></nz-option>
+                    <nz-option nzValue="SOU_CO" nzLabel="Tài khoản CTV nguồn"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+
+                <nz-form-control nzErrorTip="Mã đăng ký không được để trống">
+                  <img src="assets/icons/id-card.svg" alt="" class="w-6 h-6 left-3 top-3 absolute" style="z-index: 999;" />
+                  <nz-input-group>
+                    <input
+                      class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                      type="text"
+                      nz-input
+                      formControlName="registerCode"
+                      placeholder="Mã đăng ký"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <button nz-button class="w-full mt-2 cursor-pointer bg-red-500 rounded-lg py-4">
+                <span class="text-white font-medium bg-red-500 text-sm">Tiếp tục</span>
+              </button>
+            </form>
+
+            <div class="mt-4 text-center text-xs font-normal text-gray-500">
+              Bằng việc tiếp tục, bạn đồng ý với
+              <a
+                href="https://trogiup.batdongsan.com.vn/docs/dieu-khoan-thoa-thuan"
+                class="sc-eWvPJL ktpFyQ"
+                style="display: inline-block"
+              >
+                <div class="text-xs text-red-500">Điều khoản sử dụng</div> </a
+              >,
+              <a
+                href="https://trogiup.batdongsan.com.vn/docs/chinh-sach-bao-mat"
+                class="text-gray-500 text-xs text-center"
+                style="display: inline-block"
+              >
+                <div class="text-xs text-red-500">Chính sách bảo mật</div>
+              </a>
+              <a
+                href="https://trogiup.batdongsan.com.vn/docs/quy-che-hoat-dong"
+                class="text-gray-500 text-xs text-center"
+                style="display: inline-block"
+              >
+                <div class="text-xs text-red-500">Quy chế</div> </a
+              >,
+              <a
+                href="https://trogiup.batdongsan.com.vn/"
+                class="text-gray-500 text-xs text-center"
+                style="display: inline-block"
+              >
+                <div class="text-xs text-red-500">Chính sách</div>
+              </a>
+              của chúng tôi.
+            </div>
+          </div>
+          <div class="text-center w-full">
+            <div class="text-sm font-normal">
+              Bạn đã có tài khoản?
+              <a (click)="showLoginForm()" style="display: inline-block">
+                <div class="text-red-500">Đăng nhập</div>
+              </a>
+              tại đây
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <section>
+    <div (click)="isCollapsed = !isCollapsed" *ngIf="isCollapsed" class="fixed bg-black opacity-30 inset-0 z-40"></div>
+    <div
+      class="fixed inset-y-0 z-50 bg-white w-72 transition-all duration-300 ease-in-out"
+      [ngClass]="{'-right-full':!isCollapsed, 'right-0':isCollapsed}"
+    >
+      <div class="flex justify-center gap-x-3 mt-4">
+        <button class="w-32 text-black font-semibold duration-300 border border-stone-300 rounded-lg py-3 px-4">
+          Đăng nhập
+        </button>
+        <button class="w-32 text-white font-normal bg-red-600 duration-300 border border-stone-300 rounded-lg p-4">
+          Đăng ký
+        </button>
+      </div>
+      <div class="mt-4">
+        <div *ngFor="let navbar of listNavbar" class="w-full text-black transition-all duration-300 ease-in-out">
+          <div
+            class="flex justify-between items-center border-t border-stone-200 p-3"
+            [ngClass]="{'font-semibold bg-slate-200 border-l-2 border-l-red-600': navbar.collapseListOption}"
+          >
+            <div class="flex gap-x-2">
+              <img class="w-5" [src]="navbar.icon" alt="" />
+              <a href="">{{navbar.title}}</a>
+            </div>
+            <button
+              (click)="navbar.collapseListOption = !navbar.collapseListOption"
+              class="flex justify-between items-center h-8 w-8"
+            >
+              <img
+                *ngIf="navbar.listOption.length > 0"
+                class="w-full h-full p-2 transition-all duration-300"
+                [ngClass]="{'rotate-90': navbar.collapseListOption}"
+                [src]="'/assets/icons/right-chevron.svg'"
+                alt=""
+              />
+            </button>
+          </div>
+          <div *ngIf="navbar.collapseListOption">
+            <a href="" class="block mt-1 pl-9 pr-2" *ngFor="let option of navbar.listOption">{{option.title}}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</header>
+
+<router-outlet></router-outlet>
+
+<footer class="bg-stone-100 text-black mt-10">
+  <section class="xl:container mx-auto py-10 px-7 xl:px-36">
+    <div class="flex flex-wrap">
+      <div class="w-full lg:w-1/3 lg:pr-9">
+        <img class="w-40 mx-auto mb-8" src="assets/icons/imgpsh_fullsize_anim.svg" alt="" />
+        <h2 class="font-semibold">CÔNG TY CỔ PHẦN PROPERTYGURU VIỆT NAM</h2>
+        <div class="flex items-center gap-x-3 font-semibold mt-5">
+          <img class="w-5" src="/assets/icons/footer/location.svg" alt="" />
+          <p>Tầng 31, Keangnam Hanoi Landmark, Phạm Hùng, Nam Từ Liêm, Hà Nội</p>
+        </div>
+        <div class="flex items-center gap-x-3 font-semibold mt-3">
+          <img class="w-5" src="/assets/icons/footer/phone-call.svg" alt="" />
+          <p>(024) 3562 5939 - (024) 3562 5940</p>
+        </div>
+        <div class="flex items-center gap-x-5 mt-10">
+          <div class="flex gap-x-2 text-base text-stone-500 font-semibold">
+            <img class="w-5" src="/assets/icons/footer/google-play.svg" alt="" />
+            <p>Google Play</p>
+          </div>
+          <div class="flex items-center gap-x-2 text-lg font-semibold">
+            <img class="w-5 block" src="/assets/icons/footer/apple.svg" alt="" />
+            <p>App Store</p>
+          </div>
+        </div>
+      </div>
+      <div class="w-full lg:w-2/3">
+        <div class="flex flex-col md:flex-row gap-y-4 gap-x-4 mt-7 lg:mt-0">
+          <div
+            *ngFor="let support of listSupport"
+            class="flex items-center gap-x-3"
+            [ngClass]="{'w-1/4':support.title ==='Hotline'}"
+          >
+            <img class="w-7" src="{{ support.img }}" alt="" />
+            <span>
+              <p>{{ support.title }}</p>
+              <a href="{{ support.href }}" class="hover:text-slate-400 font-semibold">
+                <p>{{ support.contact }}</p>
+              </a>
+            </span>
+          </div>
+        </div>
+        <div class="flex gap-x-8 mt-14">
+          <ul class="w-1/4 hidden md:block">
+            <p class="uppercase font-semibold">Hướng dẫn</p>
+            <li *ngFor="let guidance of listGuidance" class="mt-2.5">
+              <a href="{{ guidance?.link }}" class="hover:text-stone-400 mt-2">{{ guidance?.text }}</a>
+            </li>
+          </ul>
+          <ul class="w-1/4 hidden md:block">
+            <p class="uppercase font-semibold">Quy định</p>
+            <li *ngFor="let regulation of listRegulation" class="mt-2.5">
+              <a href="{{ regulation?.link }}" class="hover:text-stone-400 mt-2">{{ regulation?.text }}</a>
+            </li>
+          </ul>
+          <div class="w-2/4 hidden md:block pb-7">
+            <div class="relative max-w-[358px]">
+              <p class="font-semibold mb-3.5">ĐĂNG KÝ NHẬN TIN</p>
+              <input
+                class="block w-full mr-5 px-4 py-3 text-sm text-gray-900 border border-stone-300 hover:border-black focus:border-black rounded-lg bg-gray-50 outline-none"
+                placeholder="Nhập email của bạn"
+              />
+              <button
+                type="submit"
+                class="text-white absolute right-2 top-[51%] border bg-red-500 font-medium rounded-lg text-sm p-2 hover:bg-red-400"
+              >
+                <img class="w-4" src="/assets/icons/footer/share.svg" alt="" />
+              </button>
+            </div>
+            <div>
+              <p class="font-semibold mt-5 mb-3.5">QUỐC GIA & NGÔN NGỮ</p>
+              <button
+                class="flex items-center gap-x-2 bg-white border border-gray-300 hover:border-black rounded-md px-3.5 py-2"
+                nz-dropdown
+                nzTrigger="click"
+                nzPlacement="bottomCenter"
+                [nzDropdownMenu]="menu4"
+              >
+                <img class="w-4" src="assets/icons/footer/internet.svg" alt="" />
+                Việt Nam
+                <span nz-icon nzType="down" class="ml-6"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div (click)="showGuidance = !showGuidance" class="md:hidden border-gray-400 py-4">
+      <div class="flex justify-between items-center gap-x-2 cursor-pointer pr-1">
+        <p class="font-semibold lg:font-normal uppercase">Hướng dẫn</p>
+        <img
+          class="w-1.5"
+          [ngClass]="{'rotate-90 duration-300':showGuidance}"
+          src="/assets/icons/footer/right-chevron.svg"
+          alt=""
+        />
+      </div>
+      <div *ngIf="showGuidance" class="mt-4">
+        <div *ngFor="let guidance of listGuidance" class="mt-2.5">
+          <a href="{{guidance.link}}" class="hover:text-stone-400 mt-2">
+            <p>{{guidance.text}}</p>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div (click)="showRegulation = !showRegulation" class="md:hidden border-t border-gray-400 py-4">
+      <div class="flex justify-between items-center gap-x-2 cursor-pointer pr-1">
+        <p class="font-semibold lg:font-normal uppercase">Quy định</p>
+        <img
+          class="w-1.5"
+          [ngClass]="{'rotate-90 duration-300':showRegulation}"
+          src="/assets/icons/footer/right-chevron.svg"
+          alt=""
+        />
+      </div>
+      <div *ngIf="showRegulation" class="mt-4">
+        <div *ngFor="let regulation of listRegulation" class="mt-2.5">
+          <a href="{{regulation.link}}" class="hover:text-stone-400 mt-2">
+            <p>{{regulation.text}}</p>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="w-full md:w-2/4 md:hidden justify-between flex flex-wrap border-b border-gray-400 pb-7">
+      <div class="relative w-2/4 min-w-[300px] mr-3">
+        <p class="font-semibold mt-5 mb-3.5">ĐĂNG KÝ NHẬN TIN</p>
+        <input
+          class="block w-full mr-5 px-4 py-3 text-gray-900 border border-stone-300 hover:border-black focus:border-black rounded-lg bg-gray-50 outline-none"
+          placeholder="Nhập email của bạn"
+        />
+        <button
+          type="submit"
+          class="text-white absolute right-2 top-[60%] border bg-red-500 font-medium rounded-lg text-sm p-2 hover:bg-red-400"
+        >
+          <img class="w-4" src="/assets/icons/footer/share.svg" alt="" />
+        </button>
+      </div>
+      <div>
+        <p class="font-semibold mt-5 mb-3.5">QUỐC GIA & NGÔN NGỮ</p>
+        <button
+          class="flex items-center gap-x-2 bg-white border border-gray-300 hover:border-black rounded-md px-3.5 py-3"
+          nz-dropdown
+          nzTrigger="click"
+          nzPlacement="bottomCenter"
+          [nzDropdownMenu]="menu4"
+        >
+          <img class="w-4" src="assets/icons/footer/internet.svg" alt="" />
+          Việt Nam
+          <span nz-icon nzType="down" class="ml-6"></span>
+          <nz-dropdown-menu #menu4="nzDropdownMenu">
+            <ul nz-menu class="pl-1">
+              <a nz-menu-item *ngFor="let nation of listNation">
+                <img class="w-5 mr-2" src="{{ nation.flag }}" alt="" />
+                <p>{{ nation.language }}</p>
+              </a>
+            </ul>
+          </nz-dropdown-menu>
+        </button>
+      </div>
+    </div>
+    <div class="text-xs">
+      <div class="lg:flex">
+        <div class="md:flex gap-x-8">
+          <div>
+            <p *ngFor="let license of listLicense">{{license}}</p>
+          </div>
+          <div class="md:w-2/5 mt-4 md:mt-0 pr-3">
+            <p *ngFor="let reponsible of listReponsible">{{reponsible}}</p>
+          </div>
+        </div>
+        <div class="lg:w-1/3 flex justify-between items-center mt-4 lg:mt-0">
+          <a href="">
+            <img src="assets/icons/footer/da-dang-ki-bct.svg" alt="" />
+          </a>
+          <div class="flex items-center gap-x-3">
+            <a href="">
+              <img class="w-7 grayscale hover:grayscale-0 duration-300" src="assets/icons/footer/facebook.svg" alt="" />
+            </a>
+            <a href="">
+              <img class="w-7 grayscale hover:grayscale-0 duration-300" src="assets/icons/footer/youtube.svg" alt="" />
+            </a>
+            <a href="">
+              <img class="w-7 grayscale hover:grayscale-0 duration-300" src="assets/icons/footer/zalo.svg" alt="" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>

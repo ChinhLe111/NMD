@@ -1,0 +1,27 @@
+.bar {
+  &:before, &:after {
+    content: "";
+    animation: slideleft 3s ease-in-out infinite;
+    @apply absolute block w-3 h-3 bg-blue-600 opacity-0 rounded-full;
+  }
+}
+.bar1::before { animation-delay: 0.00s; }
+.bar1::after { animation-delay: 0.3s; }
+.bar2::before { animation-delay: 0.60s; }
+.bar2::after { animation-delay: 0.90s; }
+.bar3::before { animation-delay: 1.20s; }
+.bar3::after { animation-delay: 1.50s; }
+@keyframes slideleft {
+  10% {
+  @apply opacity-0 right-0;
+    transform: scale(0);
+  }
+  50% {
+  @apply opacity-100;
+    transform: scale(1);
+  }
+  90% {
+  @apply opacity-0 right-full;
+    transform: scale(0);
+  }
+}

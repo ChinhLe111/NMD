@@ -1,0 +1,74 @@
+<main [ngClass]="{ 'w-80 h-auto shadow rounded-lg space-y-2': !fullWidth }" class="bg-white">
+  <section *ngIf="showSlider" class="px-4 pt-4 pb-2 space-y-2 border-b border-gray-200">
+    <div class="h-9 flex justify-between items-center">
+      <input
+        class="w-[calc(50%-20px)] float-left h-8 rounded-md text-gray-900 border border-solid border-gray-200 outline-blue-400 text-center px-2"
+        min="0"
+        max="100000000000"
+        [mask]="'separator.3'"
+        thousandSeparator=","
+        placeholder="{{ 'Từ' | translate }}"
+        [(ngModel)]="sliderFrom"
+        (ngModelChange)="changeSliderFrom($event)"
+      />
+      <img class="h-1/2 aspect-square" src="../../../../assets/icons/component/to-right.svg" alt="" />
+      <input
+        [ngClass]="{
+          '!outline-red-400': (sliderFrom || 0) >= (sliderArrive || 0),
+          '!outline-blue-400': (sliderFrom || 0) < (sliderArrive || 0)
+        }"
+        class="w-[calc(50%-20px)] float-right h-8 rounded-md text-gray-900 border border-solid border-gray-200 outline-blue-400 text-center px-2"
+        min="0"
+        max="100000000000"
+        [mask]="'separator.3'"
+        thousandSeparator=","
+        placeholder="{{ 'Đến' | translate }}"
+        [(ngModel)]="sliderArrive"
+        (ngModelChange)="changeSliderArrive($event)"
+      />
+    </div>
+    <div class="h-8 grid items-center">
+      <nz-slider
+        nzRange
+        [nzMin]="0"
+        [nzMax]="100000000000"
+        [nzStep]="200"
+        [(ngModel)]="sliderValue"
+        [nzTipFormatter]="tipFormatter"
+        (nzOnAfterChange)="onAfterChange($event)"
+      ></nz-slider>
+    </div>
+  </section>
+  <section [ngClass]="{ 'max-h-64 overflow-y-auto scroll-smooth custom-scroll mr-1': !fullHeight }">
+    <ul nz-menu>
+      <ng-template let-price ngFor [ngForOf]="arrPrice">
+        <li
+          nz-menu-item
+          class="h-9 hover:bg-gray-100 flex justify-between cursor-pointer !px-4 active:bg-blue-200 text-black"
+          [ngClass]="{
+            '!text-red-800 font-medium': choosePrice && choosePrice === price
+          }"
+          (click)="handleChoose(price)"
+        >
+          <span class="my-auto">{{ price.label }}</span>
+        </li>
+      </ng-template>
+    </ul>
+  </section>
+  <section *ngIf="showFooter" class="p-2 flex justify-between items-center border-t border-gray-200">
+    <button
+      class="bg-white px-3 h-8 rounded-md hover:bg-gray-200 inline-flex items-center gap-1 justify-center font-medium"
+      (click)="handleReset()"
+    >
+      <img class="h-2/3 aspect-square" src="../../../../assets/icons/component/sync.svg" alt="" />
+      <span>{{ 'Đặt lại' | translate }}</span>
+    </button>
+    <button
+      nz-menu-item
+      class="bg-red-600 text-white px-4 h-8 rounded-md hover:!bg-red-400 inline-flex items-center gap-1 justify-center font-medium"
+      (click)="handleApply()"
+    >
+      {{ 'Áp dụng' | translate }}
+    </button>
+  </section>
+</main>

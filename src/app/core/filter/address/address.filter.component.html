@@ -1,0 +1,75 @@
+<main class="bg-white w-72 py-2 shadow rounded-lg space-y-2">
+  <section>
+    <div>
+      <h1 *ngIf="!!chooseProvince" class="relative text-base text-center font-medium py-1 px-2">
+        <img
+          class="h-full aspect-square cursor-pointer absolute top-0 left-1 rotate-180"
+          src="../../../../assets/icons/component/right.svg"
+          alt=""
+          (click)="handleBack()"
+        />
+        <span>{{ chooseProvince.tenTinh }}</span>
+      </h1>
+    </div>
+    <div class="relative mx-2">
+      <input
+        class="w-full h-9 rounded-md text-gray-900 bg-gray-100 border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+        [formControl]="fullTextSearch"
+        placeholder="{{ (chooseProvince ? 'Tìm Quận/Huyện' : 'Tìm Tỉnh/Thành phố') | translate }}"
+      />
+      <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-3 z-[1]"></i>
+    </div>
+  </section>
+  <section #address class="max-h-72 overflow-y-auto scroll-smooth custom-scroll mr-1">
+    <nz-spin [nzSpinning]="addressFacade.isLoading$ | async">
+      <ul nz-menu>
+        <div *ngIf="!chooseProvince && (addressFacade.provinceList$ | async) as provinceList">
+          <li
+            nz-menu-item
+            class="h-9 hover:bg-gray-100 cursor-pointer !px-3"
+            [ngClass]="{ 'text-red-800 font-medium': selectAll }"
+            (click)="handleSelectAll({ province: '' })"
+          >
+            <span class="my-auto">{{ 'Toàn quốc' | translate }}</span>
+          </li>
+          <ng-template let-province ngFor [ngForOf]="provinceList">
+            <li
+              class="h-9 hover:bg-gray-100 flex justify-between items-center cursor-pointer"
+              [ngClass]="{
+                'text-red-800 font-medium':
+                  provinceSelected && provinceSelected.tenTinh === province.tenTinh && !selectAll
+              }"
+              (click)="handleSelect(province, undefined)"
+            >
+              <span class="my-auto pl-3">{{ province.tenTinh }}</span>
+              <img class="h-3/4 aspect-square" src="../../../../assets/icons/component/right.svg" alt="" />
+            </li>
+          </ng-template>
+        </div>
+        <div *ngIf="chooseProvince && (addressFacade.districtList$ | async) as districtList">
+          <li
+            nz-menu-item
+            class="h-9 hover:bg-gray-100 cursor-pointer !px-3"
+            [ngClass]="{ 'text-red-800 font-medium': selectAll }"
+            (click)="handleSelectAll({ district: '' })"
+          >
+            <span class="my-auto">{{ 'Tất cả quận, huyện' | translate }}</span>
+          </li>
+          <ng-template let-district ngFor [ngForOf]="districtList">
+            <li
+              nz-menu-item
+              class="h-9 hover:bg-gray-100 cursor-pointer"
+              [ngClass]="{
+                'text-red-800 font-medium':
+                  chooseDistrict && chooseDistrict.districtName === district.districtName && !selectAll
+              }"
+              (click)="handleSelect(undefined, district)"
+            >
+              <span class="my-auto pl-3">{{ district.districtName }}</span>
+            </li>
+          </ng-template>
+        </div>
+      </ul>
+    </nz-spin>
+  </section>
+</main>

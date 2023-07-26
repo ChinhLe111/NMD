@@ -1,0 +1,172 @@
+<section>
+  <div class="pt-10 py-5 px-2.5 -intro-x">
+    <div class="relative w-[900px] mx-auto">
+      <button class="absolute top-0 -left-9" routerLink="/list_source_news">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">Thông tin nguồn tin</h2>
+    </div>
+  </div>
+
+  <div class="bg-gray-100 rounded-t-md pt-5 pb-10">
+    <nz-spin [nzSpinning]="newsFacade.isLoading$ | async">
+      <div class="w-[900px] mx-auto flex gap-x-5" *ngIf="newsFacade.data$ | async as dataProperty">
+        <div class="w-[100%] intro-x">
+          <section class="w-full px-5 pb-5 rounded-md bg-white shadow">
+            <div class="h-14 col-span-12 border-b border-gray-200 flex justify-between items-center">
+              <p class="font-medium text-black text-lg">Chi tiết nguồn tin</p>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-full">
+                <div>
+                  <label class="text-gray-500">Tiêu đề</label><br />
+                  <strong>{{ dataProperty?.title }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Tên chủ đất</label><br />
+                  <strong>{{ dataProperty?.ownerName }}</strong>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Số điện thoại</label><br />
+                  <strong>{{ dataProperty?.ownerPhone }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Địa chỉ</label><br />
+                  <strong>{{ dataProperty?.village }}, {{ dataProperty?.communeName }},
+                    {{ dataProperty?.districtName }}, {{ dataProperty?.provinceName }}</strong>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Trạng thái</label><br />
+                  <strong *ngIf="dataProperty?.statusCode == 'PUBLISHED'" class=" text-white bg-blue-400">Đã duyệt</strong>
+                  <strong *ngIf="dataProperty?.statusCode == 'WAIT_CONFIRM'" class=" text-white bg-green-400">Chờ duyệt</strong>
+                  <strong *ngIf="dataProperty?.statusCode == 'DRAFT'" class=" text-white bg-gray-400">Nháp</strong>
+                  <strong *ngIf="dataProperty?.statusCode == 'END'" class=" text-white bg-red-500">Kết thúc</strong>
+                  <strong *ngIf="dataProperty?.statusCode == 'VERIFIED'" class=" text-white bg-blue-600">Xác minh</strong>
+                  <strong *ngIf="dataProperty?.statusCode == 'RECEIVED'" class="text-white bg-blue-400">Nhận tin</strong>
+                  <strong *ngIf="dataProperty?.statusCode == 'ADMIN_REJECTED'" class="text-white bg-red-300">Từ chối</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Thửa đất số</label><br />
+                  <strong>{{dataProperty.lotNumber}}</strong>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Tờ bản đồ số</label><br />
+                  <strong>{{ dataProperty?.mapNumber }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4">
+              <div class="w-full">
+                <div>
+                  <label class="text-gray-500">Mô tả</label><br />
+                  <strong class="whitespace-pre-line">{{ dataProperty?.description }}</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="mt-5 w-full px-5 pb-5 rounded-md bg-white shadow">
+            <p
+              class="font-medium text-black text-lg col-span-12 text-center border-b border-gray-300 h-14 flex items-center">
+              Thông tin liên hệ
+            </p>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Họ và tên</label><br />
+                  <strong>{{ dataProperty?.user?.userName }}</strong>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">Số điện thoại</label><br />
+                  <strong>{{ dataProperty?.user?.phoneNumber }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4">
+              <div class="w-full">
+                <div>
+                  <label class="text-gray-500">Điểm tích lũy</label><br />
+                  <strong>{{ dataProperty?.user?.point }}</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="mx-auto flex w-full top-3 bottom-0 rounded-md z-30 justify-end gap-3">
+            <button
+                  *ngIf="dataProperty?.statusCode == 'WAIT_CONFIRM' && (globalFacade.user$ | async)?.userModel?.roleListCode?.[0] == 'ADMIN'"
+                  class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white mt-4"
+                  (click)="handleApprove()"
+                >
+                  Duyệt
+                </button>
+                <button
+                *ngIf="dataProperty?.statusCode == 'WAIT_CONFIRM' && (globalFacade.user$ | async)?.userModel?.roleListCode?.[0] == 'ADMIN'"
+                class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white mt-4"
+                (click)="reject()"
+              >
+                Từ chối
+              </button>
+            <button class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold mt-4"
+              routerLink="/list_source_news">
+              Đóng lại
+            </button>
+            </section>
+
+
+          <nz-modal [(nzVisible)]="isVisible" nzCloseIcon="false" [nzCentered]="true" [nzWidth]="600" [nzFooter]="null">
+              <ng-container *nzModalContent>
+                <div class="p-3">
+                  <label class="text-black font-medium">Nhập lý do</label><br />
+                  <button class="p-3 cursor-pointer !right-0" (click)="isVisible = false" z-index="999">
+                    <img class="w-4" src="assets/icons/close.svg" />
+                  </button>
+        
+
+                <form nz-form [formGroup]="rejectForm" (ngSubmit)="handleReject()" class="pt-4">
+                  <nz-form-item>
+                    <nz-form-label nzRequired class="font-medium text-black text-lg col-span-12 text-center border-gray-300 h-14 flex items-center">Lý do từ chối</nz-form-label>
+                    <nz-form-control nzErrorTip="Lý do từ chối không được để trống">
+                      <nz-input-group>
+                        <input
+                          class="w-full border border-slate-300 hover:border-slate-400 active:border-gray-400 rounded-lg py-[13px] pl-[43px] pr-3 text-sm"
+                          type="text"
+                          nz-input
+                          formControlName="reason"
+                          placeholder="Nhập lý do từ chối"                    
+                        />
+                      </nz-input-group>
+                    </nz-form-control>
+                  </nz-form-item>
+                  <button nz-button class="w-full mt-2 cursor-pointer bg-red-500 rounded-lg py-4">
+                    <span class="text-white font-medium bg-red-500 text-sm">Từ chối</span>
+                  </button>
+                  </form>
+                  </div>
+              </ng-container>
+            </nz-modal>
+
+  
+        </div>
+      </div>
+    </nz-spin>
+  </div>
+</section>
